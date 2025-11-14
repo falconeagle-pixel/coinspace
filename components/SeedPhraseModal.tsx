@@ -18,9 +18,12 @@ export default function SeedPhraseModal({
   onRestoreWallet?: (seedPhrase: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const { wordlist, isLoading, validateWord, validateSeedPhrase } = useSeedPhraseValidation();
-  const [seedWords, setSeedWords] = useState(Array(12).fill(''));
-  const [wordValidationStates, setWordValidationStates] = useState(Array(12).fill(true));
+  const { wordlist, isLoading, validateWord, validateSeedPhrase } =
+    useSeedPhraseValidation();
+  const [seedWords, setSeedWords] = useState(Array(12).fill(""));
+  const [wordValidationStates, setWordValidationStates] = useState(
+    Array(12).fill(true)
+  );
   const [seedPhraseErrors, setSeedPhraseErrors] = useState<string[]>([]);
 
   if (!open) return null;
@@ -40,7 +43,7 @@ export default function SeedPhraseModal({
     }
 
     // Validate entire seed phrase
-    const seedPhrase = newWords.join(' ');
+    const seedPhrase = newWords.join(" ");
     if (seedPhrase.trim()) {
       const validation = validateSeedPhrase(seedPhrase);
       setSeedPhraseErrors(validation.errors);
@@ -49,6 +52,34 @@ export default function SeedPhraseModal({
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+
+    const text = e.clipboardData.getData("text") || "";
+    const parts = text.trim().split(/\s+/).slice(0, 12);
+
+    if (parts.length === 0) return;
+
+    // Fill all 12 boxes
+    const newWords = [...seedWords];
+    parts.forEach((word, i) => {
+      if (i < 12) newWords[i] = word.toLowerCase();
+    });
+
+    setSeedWords(newWords);
+
+    // Validate each word individually
+    const newValidation = [...wordValidationStates];
+    newWords.forEach((w, i) => {
+      newValidation[i] = validateWord(w);
+    });
+    setWordValidationStates(newValidation);
+
+    // Validate total phrase
+    const phrase = newWords.join(" ");
+    const validation = validateSeedPhrase(phrase);
+    setSeedPhraseErrors(validation.errors);
+  };
 
   const handleCopy = () => {
     if (seedPhrase.length) {
@@ -63,7 +94,9 @@ export default function SeedPhraseModal({
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
         <h2 className="text-slate-900 font-semibold text-lg">
-          {mode === "display" ? "Your 12-word seed phrase" : "Enter your seed phrase"}
+          {mode === "display"
+            ? "Your 12-word seed phrase"
+            : "Enter your seed phrase"}
         </h2>
         <button
           onClick={onClose}
@@ -74,13 +107,12 @@ export default function SeedPhraseModal({
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto px-6 sm:px-10 py-10">
+      <div className="flex-1 overflow-y-scroll px-6 sm:px-10 py-10">
         <div className="max-w-2xl mx-auto">
           <p className="text-slate-600 text-center">
-            {mode === "display" 
+            {mode === "display"
               ? "Write down these words in order and keep them safe. They are the only way to recover your wallet."
-              : "Enter your 12-word seed phrase to restore your wallet."
-            }
+              : "Enter your 12-word seed phrase to restore your wallet."}
           </p>
 
           {mode === "display" ? (
@@ -122,18 +154,20 @@ export default function SeedPhraseModal({
                       type="text"
                       value={seedWords[index]}
                       onChange={(e) => handleWordChange(index, e.target.value)}
+                      onPaste={handlePaste}
                       className={`w-full px-3 py-2 rounded-xl border text-sm font-medium transition-colors text-black placeholder:text-slate-400 ${
-                        wordValidationStates[index] 
-                          ? 'border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500' 
-                          : 'border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        wordValidationStates[index]
+                          ? "border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                          : "border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                       }`}
                       placeholder={`Word ${index + 1}`}
                     />
-                    {!wordValidationStates[index] && seedWords[index].trim() && (
-                      <div className="absolute -bottom-5 left-0 text-xs text-red-500">
-                        Invalid word
-                      </div>
-                    )}
+                    {!wordValidationStates[index] &&
+                      seedWords[index].trim() && (
+                        <div className="absolute -bottom-5 left-0 text-xs text-red-500">
+                          Invalid word
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>
@@ -141,7 +175,9 @@ export default function SeedPhraseModal({
               {/* Validation errors */}
               {seedPhraseErrors.length > 0 && (
                 <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <h4 className="text-red-800 font-medium text-sm mb-2">Please fix the following errors:</h4>
+                  <h4 className="text-red-800 font-medium text-sm mb-2">
+                    Please fix the following errors:
+                  </h4>
                   <ul className="text-red-700 text-sm space-y-1">
                     {seedPhraseErrors.map((error, index) => (
                       <li key={index}>• {error}</li>
@@ -174,30 +210,30 @@ export default function SeedPhraseModal({
               </button>
             </>
           ) : (
-              <button
-                onClick={() => {
-                  console.log('Button clicked!');
-                  const seedPhrase = seedWords.join(' ');
-                  console.log('Seed phrase:', seedPhrase);
-                  const validation = validateSeedPhrase(seedPhrase);
-                  console.log('Validation result:', validation);
-                  
-                  if (validation.isValid) {
-                    // Restore wallet logic
-                    console.log('Restoring wallet with seed phrase:', seedPhrase);
-                    if (onRestoreWallet) {
-                      onRestoreWallet(seedPhrase);
-                    }
-                  } else {
-                    console.log('Validation errors:', validation.errors);
-                    setSeedPhraseErrors(validation.errors);
+            <button
+              onClick={() => {
+                console.log("Button clicked!");
+                const seedPhrase = seedWords.join(" ");
+                console.log("Seed phrase:", seedPhrase);
+                const validation = validateSeedPhrase(seedPhrase);
+                console.log("Validation result:", validation);
+
+                if (validation.isValid) {
+                  // Restore wallet logic
+                  console.log("Restoring wallet with seed phrase:", seedPhrase);
+                  if (onRestoreWallet) {
+                    onRestoreWallet(seedPhrase);
                   }
-                }}
-                // disabled={seedPhraseErrors.length > 0 || seedWords.some(word => !word.trim())}
-                className="flex-1 h-10 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
-              >
-                Restore Wallet
-              </button>
+                } else {
+                  console.log("Validation errors:", validation.errors);
+                  setSeedPhraseErrors(validation.errors);
+                }
+              }}
+              // disabled={seedPhraseErrors.length > 0 || seedWords.some(word => !word.trim())}
+              className="flex-1 h-10 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              Restore Wallet
+            </button>
           )}
         </div>
       </div>
