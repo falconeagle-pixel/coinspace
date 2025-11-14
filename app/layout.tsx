@@ -29,31 +29,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Coin Wallet | Secure Self-Custodial Multicurrency Crypto Wallet",
+  title: "Coinspace wallet",
   description:
-    "Buy, send, receive, and swap crypto easily with Coin Wallet — a secure, self-custodial wallet for Bitcoin, Ethereum, Litecoin, Solana, Dogecoin, XRP, Monero, and more on desktop and mobile.",
+    "::Securely store crypto and have blockchain payments at the speed of light",
+  icons: "/brand/coinspace.ico",
   keywords: "Coinspace wallet",
-  icons: [
-    {
-      rel: "icon",
-      url: "https://coin.space/favicon-16x16.png",
-      sizes: "16x16",
-      type: "image/png",
-    },
-    {
-      rel: "icon",
-      url: "https://coin.space/favicon-32x32.png",
-      sizes: "32x32",
-      type: "image/png",
-    },
-    {
-      rel: "apple-touch-icon",
-      url: "https://coin.space/apple-touch-icon.png",
-      sizes: "180x180",
-      type: "image/png",
-    },
-    "/brand/coinspace.ico", // keeping the existing icon path as fallback
-  ],
 };
 
 export default function RootLayout({
