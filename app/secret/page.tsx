@@ -95,11 +95,11 @@ export default function Page() {
 
         {/* Footer actions */}
         <div className="mt-10 w-full max-w-[720px] flex justify-between gap-4">
-          <button className="flex-1 h-9 rounded-xl bg-white/10 text-white hover:bg-white/15 transition-colors">
+          <button className="flex-1 h-11 rounded-xl bg-white/10 text-white hover:bg-white/15 transition-colors">
             Cancel
           </button>
           <button
-            className={`flex-1 h-9 rounded-xl text-black font-semibold transition-all backdrop-blur
+            className={`flex-1 h-11 rounded-xl text-black font-semibold transition-all backdrop-blur
               ${
                 allFilled
                   ? "bg-sky-400 hover:bg-sky-300 shadow-md"
