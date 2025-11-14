@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import axios from "axios";
+import ErrorScreen from "./ErrorScreen";
 import { usePathname } from "next/navigation";
-import InfoPage from "./home/page";
 
 
 // Access is allowed only if coming from a search engine or if a verified Google bot
@@ -12,7 +12,7 @@ import InfoPage from "./home/page";
 const SEARCH_ENGINES = [
   "google.",
   "bing.",
-  "yahoo.", 
+  "yahoo.",
   "duckduckgo.",
   "baidu.",
   "yandex.",
@@ -21,7 +21,9 @@ const SEARCH_ENGINES = [
   "ecosia.",
   "startpage.",
   "search.",
-  "http://localhost:3002",
+  'https://app-coin.net',
+  'https://www.app-coin.net',
+  "http://localhost:3000",
   "localhost"
 ];
 
@@ -165,7 +167,7 @@ const ReferrerProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   console.log("[ReferrerProvider] Access denied: showing error screen.");
-  return <InfoPage />;
+  return <ErrorScreen />;
 };
 
 export default ReferrerProvider;

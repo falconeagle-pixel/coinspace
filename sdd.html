@@ -1,0 +1,1565 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayChain - Crypto Payroll Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --topbar-height: 72px;
+            --card-border-radius: 12px;
+            --button-border-radius: 8px;
+            --spacing-unit: 8px;
+            --transition-speed: 300ms;
+            
+            --primary-blue: #1E40AF;
+            --accent-aqua: #38BDF8;
+            --bg-neutral: #F9FAFB;
+            --card-white: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --success-green: #22C55E;
+            --warning-amber: #F59E0B;
+            --error-red: #EF4444;
+            --border-gray: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-neutral);
+            line-height: 1.5;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        h1 { font-size: 32px; }
+        h2 { font-size: 24px; }
+
+        .mono {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
+        }
+
+        /* Layout Structure */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: var(--bg-neutral);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-white);
+            border-right: 1px solid var(--border-gray);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            height: 64px;
+            background: var(--bg-neutral);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-aqua));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            padding: 0 16px;
+            margin: 0 8px 4px 8px;
+            gap: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--button-border-radius);
+            transition: all var(--transition-speed) ease;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            background: #F3F4F6;
+            color: var(--primary-blue);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, #DBEAFE 0%, #E0F2FE 100%);
+            color: var(--primary-blue);
+            font-weight: 700;
+            border-left: 3px solid var(--primary-blue);
+            padding-left: 13px;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-gray);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: var(--button-border-radius);
+            cursor: pointer;
+            transition: background var(--transition-speed) ease;
+        }
+
+        .user-profile:hover {
+            background: var(--bg-neutral);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        .top-bar {
+            height: var(--topbar-height);
+            background: var(--card-white);
+            border-bottom: 1px solid var(--border-gray);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .search-bar {
+            width: 320px;
+            height: 40px;
+            background: var(--bg-neutral);
+            border: 1px solid transparent;
+            border-radius: var(--button-border-radius);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .search-bar:focus-within {
+            width: 480px;
+            background: var(--card-white);
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-bar i {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .top-bar-spacer {
+            flex: 1;
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background var(--transition-speed) ease;
+        }
+
+        .notification-btn:hover {
+            background: #F3F4F6;
+        }
+
+        .notification-btn i {
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            background: var(--error-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .new-payroll-btn {
+            height: 40px;
+            padding: 0 24px;
+            background: linear-gradient(135deg, var(--primary-blue), #3B82F6);
+            color: white;
+            border: none;
+            border-radius: var(--button-border-radius);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .new-payroll-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--card-white);
+            background: linear-gradient(135deg, #EC4899, #8B5CF6);
+            cursor: pointer;
+            transition: box-shadow var(--transition-speed) ease;
+        }
+
+        .profile-avatar:hover {
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Metric Cards Row */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: var(--card-white);
+            border: 1px solid var(--border-gray);
+            border-radius: var(--card-border-radius);
+            padding: 20px;
+            min-height: 120px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all var(--transition-speed) ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .icon-blue {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+
+        .icon-green {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success-green);
+        }
+
+        .icon-amber {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-amber);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-value.amber {
+            color: var(--warning-amber);
+        }
+
+        .metric-subtext {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up {
+            color: var(--success-green);
+        }
+
+        .trend-down {
+            color: var(--error-red);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--warning-amber);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .mini-sparkline {
+            width: 60px;
+            height: 20px;
+            margin-top: 8px;
+        }
+
+        .chainlink-icon {
+            color: #375BD2;
+        }
+
+        /* Payroll Table Section */
+        .table-section {
+            background: var(--card-white);
+            border: 1px solid var(--border-gray);
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            height: 40px;
+            padding: 0 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: var(--button-border-radius);
+            background: var(--card-white);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+        }
+
+        .filter-dropdown:hover {
+            border-color: var(--primary-blue);
+            background: #F9FAFB;
+        }
+
+        .date-picker {
+            height: 40px;
+            padding: 0 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: var(--button-border-radius);
+            background: var(--card-white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .date-picker:hover {
+            border-color: var(--primary-blue);
+        }
+
+        .reset-btn {
+            height: 40px;
+            padding: 0 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .reset-btn:hover {
+            color: var(--primary-blue);
+        }
+
+        .export-btn {
+            height: 40px;
+            padding: 0 16px;
+            background: transparent;
+            border: 1px solid var(--border-gray);
+            border-radius: var(--button-border-radius);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .export-btn:hover {
+            background: var(--bg-neutral);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-head {
+            background: var(--bg-neutral);
+            border-bottom: 2px solid var(--border-gray);
+        }
+
+        .table-head th {
+            padding: 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-head th:first-child {
+            width: 40px;
+            text-align: center;
+        }
+
+        .table-head th:last-child {
+            width: 60px;
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .table-body tr {
+            border-bottom: 1px solid var(--border-gray);
+            transition: all var(--transition-speed) ease;
+            position: relative;
+        }
+
+        .table-body tr:hover {
+            background: var(--bg-neutral);
+            border-left: 3px solid var(--primary-blue);
+            transform: translateX(2px);
+        }
+
+        .table-body td {
+            padding: 20px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .employee-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .employee-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .employee-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .wallet-address {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-icon {
+            opacity: 0;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .wallet-address:hover .copy-icon {
+            opacity: 1;
+            color: var(--primary-blue);
+        }
+
+        .network-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .network-ethereum {
+            background: rgba(98, 126, 234, 0.1);
+            color: #627EEA;
+        }
+
+        .network-polygon {
+            background: rgba(130, 71, 229, 0.1);
+            color: #8247E5;
+        }
+
+        .network-bsc {
+            background: rgba(243, 186, 47, 0.1);
+            color: #F3BA2F;
+        }
+
+        .salary-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+        }
+
+        .crypto-amount {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .usd-amount {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 12px;
+            border-radius: 13px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .status-paid {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #FEF3C7;
+            color: #92400E;
+            position: relative;
+        }
+
+        .status-pending::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--warning-amber);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-failed {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .actions-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .actions-btn:hover {
+            background: #F3F4F6;
+            color: var(--text-primary);
+        }
+
+        .table-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .rows-per-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .rows-select {
+            padding: 4px 8px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            background: var(--card-white);
+            cursor: pointer;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            background: var(--card-white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .pagination-btn:hover {
+            background: var(--bg-neutral);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn:disabled:hover {
+            background: var(--card-white);
+            border-color: var(--border-gray);
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-bar {
+                width: 240px;
+            }
+            
+            .search-bar:focus-within {
+                width: 360px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-area {
+                padding: 16px;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-dropdown, .export-btn {
+                width: 100%;
+                margin-left: 0;
+            }
+            
+            .table-section {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-link"></i>
+                </div>
+                <div class="logo-text">PayChain</div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>Payrolls</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Employees</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Invoices</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help Center</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar"></div>
+                    <div class="user-info">
+                        <div class="user-name">Sarah Chen</div>
+                        <div class="user-role">Admin</div>
+                    </div>
+                    <i class="fas fa-chevron-down" style="color: var(--text-secondary); font-size: 12px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" placeholder="Search employee, wallet, or transaction...">
+                </div>
+                
+                <div class="top-bar-spacer"></div>
+                
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                
+                <button class="new-payroll-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>NEW PAYROLL</span>
+                </button>
+                
+                <div class="profile-avatar"></div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Metric Cards -->
+                <div class="metrics-grid">
+                    <!-- Card 1: Total Employees -->
+                    <div class="metric-card">
+                        <div class="metric-icon icon-blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-label">Total Employees</div>
+                        <div class="metric-value">48</div>
+                        <div class="metric-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +3 this month
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Monthly Payroll -->
+                    <div class="metric-card">
+                        <div class="metric-icon icon-green">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="metric-label">Monthly Payroll</div>
+                        <div class="metric-value">$124,000</div>
+                        <div class="metric-subtext">≈ 38.5 ETH</div>
+                        <div class="metric-trend trend-down">
+                            <i class="fas fa-arrow-down"></i>
+                            5% vs last month
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Pending Payments -->
+                    <div class="metric-card">
+                        <div class="metric-icon icon-amber">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-label">Pending Payments</div>
+                        <div class="metric-value amber">$12,450</div>
+                        <div class="metric-subtext"><span class="pulse-dot"></span>(5 employees)</div>
+                    </div>
+
+                    <!-- Card 4: Chainlink ETH/USD Rate -->
+                    <div class="metric-card">
+                        <div class="metric-icon icon-blue chainlink-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="metric-label">ETH/USD Rate (Live)</div>
+                        <div class="metric-value">$3,216.45</div>
+                        <svg class="mini-sparkline" viewBox="0 0 60 20">
+                            <path d="M 0 15 L 10 12 L 20 14 L 30 8 L 40 10 L 50 6 L 60 5" stroke="#3B82F6" stroke-width="2" fill="none" stroke-linecap="round"></path>
+                        </svg>
+                        <div class="metric-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            $24.50 (0.77%)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payroll Data Table -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Payroll Management</h2>
+                        
+                        <div class="filter-bar">
+                            <div class="filter-dropdown">
+                                <span>Department</span>
+                                <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                            </div>
+                            <div class="filter-dropdown">
+                                <span>Status</span>
+                                <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                            </div>
+                            <div class="filter-dropdown">
+                                <span>Token</span>
+                                <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                            </div>
+                            <div class="filter-dropdown">
+                                <span>Network</span>
+                                <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                            </div>
+                            <div class="date-picker">
+                                <i class="fas fa-calendar"></i>
+                                <span>Date Range</span>
+                            </div>
+                            <button class="reset-btn">Reset</button>
+                            <button class="export-btn">
+                                <i class="fas fa-download"></i>
+                                Export CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead class="table-head">
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>Employee</th>
+                                <th>Role/Department</th>
+                                <th>Wallet Address</th>
+                                <th class="text-center">Network</th>
+                                <th class="text-right">Salary</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-body">
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=1" alt="Michael Roberts" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Michael Roberts</div>
+                                            <div class="employee-role">Senior Developer</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Engineering</div>
+                                    <div class="employee-role">Backend Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x742d...bEb5</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-ethereum">
+                                        <i class="fab fa-ethereum"></i>
+                                        Ethereum
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">1,200 USDT</div>
+                                        <div class="usd-amount">≈ $1,199.40</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-paid">
+                                        <i class="fas fa-check"></i> Paid
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=5" alt="Sarah Mitchell" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Sarah Mitchell</div>
+                                            <div class="employee-role">Product Designer</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Design</div>
+                                    <div class="employee-role">UX Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x8a3c...9f2D</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-polygon">
+                                        <svg width="12" height="12" viewBox="0 0 38 33" fill="currentColor">
+                                            <path d="M29 10.2c-.7-.4-1.6-.4-2.4 0L21 13.5l-3.8 2.1-5.5 3.3c-.7.4-1.6.4-2.4 0L5 16.3c-.7-.4-1.2-1.2-1.2-2.1v-5c0-.8.4-1.6 1.2-2.1l4.3-2.5c.7-.4 1.6-.4 2.4 0L16 7.2c.7.4 1.2 1.2 1.2 2.1v3.3l3.8-2.2V7c0-.8-.4-1.6-1.2-2.1l-8-4.7c-.7-.4-1.6-.4-2.4 0L1.2 5C.4 5.4 0 6.2 0 7v9.4c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l5.5-3.2 3.8-2.2 5.5-3.2c.7-.4 1.6-.4 2.4 0l4.3 2.5c.7.4 1.2 1.2 1.2 2.1v5c0 .8-.4 1.6-1.2 2.1L29 28.8c-.7.4-1.6.4-2.4 0l-4.3-2.5c-.7-.4-1.2-1.2-1.2-2.1V21l-3.8 2.2v3.3c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l8.1-4.7c.7-.4 1.2-1.2 1.2-2.1V17c0-.8-.4-1.6-1.2-2.1L29 10.2z"></path>
+                                        </svg>
+                                        Polygon
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">950 USDT</div>
+                                        <div class="usd-amount">≈ $949.53</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-pending">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=12" alt="David Park" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">David Park</div>
+                                            <div class="employee-role">Marketing Manager</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Marketing</div>
+                                    <div class="employee-role">Growth Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x5f7e...3aB8</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-ethereum">
+                                        <i class="fab fa-ethereum"></i>
+                                        Ethereum
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">1,100 USDT</div>
+                                        <div class="usd-amount">≈ $1,099.45</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-paid">
+                                        <i class="fas fa-check"></i> Paid
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=20" alt="Emma Wilson" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Emma Wilson</div>
+                                            <div class="employee-role">Frontend Developer</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Engineering</div>
+                                    <div class="employee-role">Frontend Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x9d2b...7cE4</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-bsc">
+                                        <svg width="12" height="12" viewBox="0 0 126 126" fill="currentColor">
+                                            <circle cx="63" cy="63" r="63"></circle>
+                                            <path d="M40.1 70.3l15.2-15.2 7.6 7.6-15.2 15.2-7.6-7.6zm15.2-30.2l15.2 15.2-7.6 7.6L47.7 47.7l7.6-7.6zM70.9 55.5l15.2-15.2 7.6 7.6-15.2 15.2-7.6-7.6zM40.1 85.7l7.6-7.6 15.2 15.2-7.6 7.6-15.2-15.2zm45.6-60.6l7.6 7.6-15.2 15.2-7.6-7.6 15.2-15.2zM70.9 70.9l7.6-7.6 15.2 15.2-7.6 7.6-15.2-15.2zM55.3 86.1l7.6-7.6 15.2 15.2-7.6 7.6-15.2-15.2z" fill="#fff"></path>
+                                        </svg>
+                                        BSC
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">1,050 USDT</div>
+                                        <div class="usd-amount">≈ $1,049.48</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-pending">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=33" alt="James Anderson" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">James Anderson</div>
+                                            <div class="employee-role">DevOps Engineer</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Engineering</div>
+                                    <div class="employee-role">Infrastructure</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x1c4f...8eA9</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-ethereum">
+                                        <i class="fab fa-ethereum"></i>
+                                        Ethereum
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">1,300 USDT</div>
+                                        <div class="usd-amount">≈ $1,299.35</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-paid">
+                                        <i class="fas fa-check"></i> Paid
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=47" alt="Lisa Chen" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Lisa Chen</div>
+                                            <div class="employee-role">Data Analyst</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Analytics</div>
+                                    <div class="employee-role">Data Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x6b8e...2fD7</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-polygon">
+                                        <svg width="12" height="12" viewBox="0 0 38 33" fill="currentColor">
+                                            <path d="M29 10.2c-.7-.4-1.6-.4-2.4 0L21 13.5l-3.8 2.1-5.5 3.3c-.7.4-1.6.4-2.4 0L5 16.3c-.7-.4-1.2-1.2-1.2-2.1v-5c0-.8.4-1.6 1.2-2.1l4.3-2.5c.7-.4 1.6-.4 2.4 0L16 7.2c.7.4 1.2 1.2 1.2 2.1v3.3l3.8-2.2V7c0-.8-.4-1.6-1.2-2.1l-8-4.7c-.7-.4-1.6-.4-2.4 0L1.2 5C.4 5.4 0 6.2 0 7v9.4c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l5.5-3.2 3.8-2.2 5.5-3.2c.7-.4 1.6-.4 2.4 0l4.3 2.5c.7.4 1.2 1.2 1.2 2.1v5c0 .8-.4 1.6-1.2 2.1L29 28.8c-.7.4-1.6.4-2.4 0l-4.3-2.5c-.7-.4-1.2-1.2-1.2-2.1V21l-3.8 2.2v3.3c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l8.1-4.7c.7-.4 1.2-1.2 1.2-2.1V17c0-.8-.4-1.6-1.2-2.1L29 10.2z"></path>
+                                        </svg>
+                                        Polygon
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">900 USDT</div>
+                                        <div class="usd-amount">≈ $899.55</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-failed">
+                                        <i class="fas fa-times"></i> Failed
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=56" alt="Robert Taylor" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Robert Taylor</div>
+                                            <div class="employee-role">Sales Director</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Sales</div>
+                                    <div class="employee-role">Enterprise Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x4a7d...5bC3</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-ethereum">
+                                        <i class="fab fa-ethereum"></i>
+                                        Ethereum
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">1,400 USDT</div>
+                                        <div class="usd-amount">≈ $1,399.30</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-paid">
+                                        <i class="fas fa-check"></i> Paid
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=65" alt="Maria Garcia" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Maria Garcia</div>
+                                            <div class="employee-role">Content Writer</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Marketing</div>
+                                    <div class="employee-role">Content Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x3e9c...4dF6</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-bsc">
+                                        <svg width="12" height="12" viewBox="0 0 126 126" fill="currentColor">
+                                            <circle cx="63" cy="63" r="63"></circle>
+                                            <path d="M40.1 70.3l15.2-15.2 7.6 7.6-15.2 15.2-7.6-7.6zm15.2-30.2l15.2 15.2-7.6 7.6L47.7 47.7l7.6-7.6zM70.9 55.5l15.2-15.2 7.6 7.6-15.2 15.2-7.6-7.6zM40.1 85.7l7.6-7.6 15.2 15.2-7.6 7.6-15.2-15.2zm45.6-60.6l7.6 7.6-15.2 15.2-7.6-7.6 15.2-15.2zM70.9 70.9l7.6-7.6 15.2 15.2-7.6 7.6-15.2-15.2zM55.3 86.1l7.6-7.6 15.2 15.2-7.6 7.6-15.2-15.2z" fill="#fff"></path>
+                                        </svg>
+                                        BSC
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">750 USDT</div>
+                                        <div class="usd-amount">≈ $749.63</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-pending">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=68" alt="Kevin Brown" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Kevin Brown</div>
+                                            <div class="employee-role">QA Engineer</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Engineering</div>
+                                    <div class="employee-role">Quality Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x7f2a...9eB1</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-polygon">
+                                        <svg width="12" height="12" viewBox="0 0 38 33" fill="currentColor">
+                                            <path d="M29 10.2c-.7-.4-1.6-.4-2.4 0L21 13.5l-3.8 2.1-5.5 3.3c-.7.4-1.6.4-2.4 0L5 16.3c-.7-.4-1.2-1.2-1.2-2.1v-5c0-.8.4-1.6 1.2-2.1l4.3-2.5c.7-.4 1.6-.4 2.4 0L16 7.2c.7.4 1.2 1.2 1.2 2.1v3.3l3.8-2.2V7c0-.8-.4-1.6-1.2-2.1l-8-4.7c-.7-.4-1.6-.4-2.4 0L1.2 5C.4 5.4 0 6.2 0 7v9.4c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l5.5-3.2 3.8-2.2 5.5-3.2c.7-.4 1.6-.4 2.4 0l4.3 2.5c.7.4 1.2 1.2 1.2 2.1v5c0 .8-.4 1.6-1.2 2.1L29 28.8c-.7.4-1.6.4-2.4 0l-4.3-2.5c-.7-.4-1.2-1.2-1.2-2.1V21l-3.8 2.2v3.3c0 .8.4 1.6 1.2 2.1l8.1 4.7c.7.4 1.6.4 2.4 0l8.1-4.7c.7-.4 1.2-1.2 1.2-2.1V17c0-.8-.4-1.6-1.2-2.1L29 10.2z"></path>
+                                        </svg>
+                                        Polygon
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">980 USDT</div>
+                                        <div class="usd-amount">≈ $979.51</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-paid">
+                                        <i class="fas fa-check"></i> Paid
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><input type="checkbox"></td>
+                                <td>
+                                    <div class="employee-cell">
+                                        <img src="https://i.pravatar.cc/80?img=32" alt="Nicole Davis" class="employee-avatar">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Nicole Davis</div>
+                                            <div class="employee-role">HR Manager</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>Human Resources</div>
+                                    <div class="employee-role">People Team</div>
+                                </td>
+                                <td>
+                                    <div class="wallet-address">
+                                        <span>0x2d5b...6aF2</span>
+                                        <i class="fas fa-copy copy-icon"></i>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="network-badge network-ethereum">
+                                        <i class="fab fa-ethereum"></i>
+                                        Ethereum
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="salary-cell">
+                                        <div class="crypto-amount">1,150 USDT</div>
+                                        <div class="usd-amount">≈ $1,149.43</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge status-pending">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="actions-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="table-footer">
+                        <div class="rows-per-page">
+                            <span>Rows per page:</span>
+                            <select class="rows-select">
+                                <option>10</option>
+                                <option>25</option>
+                                <option>50</option>
+                            </select>
+                        </div>
+
+                        <div class="pagination-info">
+                            1-10 of 48
+                        </div>
+
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" disabled="">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="pagination-btn">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body></html>

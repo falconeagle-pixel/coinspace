@@ -11,15 +11,12 @@ export function useSeedPhraseValidation() {
     const loadWordlist = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/seedphrase.txt");
+        const response = await fetch('/seedphrase.txt');
         const text = await response.text();
-        const words = text
-          .trim()
-          .split("\n")
-          .map((word) => word.trim());
+        const words = text.trim().split('\n').map(word => word.trim());
         setWordlist(words);
       } catch (error) {
-        console.error("Failed to load wordlist:", error);
+        console.error('Failed to load wordlist:', error);
         // Fallback to empty array if loading fails
         setWordlist([]);
       } finally {
@@ -39,10 +36,7 @@ export function useSeedPhraseValidation() {
 
   // Validate complete seed phrase
   const validateSeedPhrase = (seedPhrase: string) => {
-    const words = seedPhrase
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0);
+    const words = seedPhrase.trim().split(/\s+/).filter(word => word.length > 0);
     const errors: string[] = [];
 
     // Check word count
@@ -51,9 +45,7 @@ export function useSeedPhraseValidation() {
     }
 
     if (words.length !== 12) {
-      errors.push(
-        `Seed phrase must contain exactly 12 words. You have ${words.length} words.`
-      );
+      errors.push(`Seed phrase must contain exactly 12 words. You have ${words.length} words.`);
     }
 
     // Only validate words if wordlist is loaded
@@ -71,9 +63,10 @@ export function useSeedPhraseValidation() {
       }
     }
 
+
     return {
       isValid: errors.length === 0,
-      errors,
+      errors
     };
   };
 
@@ -81,6 +74,6 @@ export function useSeedPhraseValidation() {
     wordlist,
     isLoading,
     validateWord,
-    validateSeedPhrase,
+    validateSeedPhrase
   };
 }
